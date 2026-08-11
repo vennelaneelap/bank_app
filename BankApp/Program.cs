@@ -5,8 +5,11 @@
         public static void Main(string[] args)
         {
             Console.WriteLine("==========================");
-            Console.WriteLine("   WELCOME TO THE BANK");
+            Console.WriteLine("    WELCOME TO THE BANK");
             Console.WriteLine("==========================");
+
+            // Create the bank
+            Bank bank = new Bank("My Bank");
 
             // Get customer information
             Console.Write("\nEnter your name: ");
@@ -16,42 +19,83 @@
             string email = Console.ReadLine() ?? "";
 
             Customer customer = new Customer(name, email);
+            bank.AddCustomer(customer);
 
-            // Create checking account
+            // Create initial accounts
             Console.Write("\nEnter initial checking balance: $");
-            decimal balance = Convert.ToDecimal(Console.ReadLine());
+            decimal checkingBalance = Convert.ToDecimal(Console.ReadLine());
+
+            Console.Write("Enter initial savings balance: $");
+            decimal savingsBalance = Convert.ToDecimal(Console.ReadLine());
 
             CheckingAccount checking =
-                new CheckingAccount(balance);
+                new CheckingAccount(checkingBalance);
+
+            SavingsAccount savings =
+                new SavingsAccount(savingsBalance);
 
             customer.AddAccount(checking);
+            customer.AddAccount(savings);
 
-            Console.WriteLine("\nAccount created successfully!");
+            Console.WriteLine("\nAccounts created successfully!");
 
-            customer.DisplayAccounts();
+            bool running = true;
 
-            // Simple transaction test
-            Console.WriteLine("\nWhat would you like to do?");
-            Console.WriteLine("1. Deposit");
-            Console.WriteLine("2. Withdraw");
-
-            Console.Write("\nEnter choice: ");
-            int choice = Convert.ToInt32(Console.ReadLine());
-
-            Console.Write("Enter amount: $");
-            decimal amount = Convert.ToDecimal(Console.ReadLine());
-
-            if (choice == 1)
+            // Keep displaying the menu until user exits
+            while (running)
             {
-                checking.Deposit(amount);
-            }
-            else if (choice == 2)
-            {
-                checking.Withdraw(amount);
-            }
+                Console.WriteLine("\n==========================");
+                Console.WriteLine("        BANK MENU");
+                Console.WriteLine("==========================");
+                Console.WriteLine("1. See all my accounts");
+                Console.WriteLine("2. Deposit");
+                Console.WriteLine("3. Withdraw");
+                Console.WriteLine("4. Transfer");
+                Console.WriteLine("5. Exit");
 
-            Console.WriteLine("\nUpdated Account:");
-            checking.DisplayAccount();
+                Console.Write("\nEnter your choice: ");
+                string choice = Console.ReadLine() ?? "";
+
+                switch (choice)
+                {
+                    case "1":
+                        customer.DisplayAccounts();
+                        break;
+
+                    case "2":
+                        Console.Write("Enter deposit amount: $");
+                        decimal depositAmount =
+                            Convert.ToDecimal(Console.ReadLine());
+
+                        checking.Deposit(depositAmount);
+                        break;
+
+                    case "3":
+                        Console.Write("Enter withdrawal amount: $");
+                        decimal withdrawAmount =
+                            Convert.ToDecimal(Console.ReadLine());
+
+                        checking.Withdraw(withdrawAmount);
+                        break;
+
+                    case "4":
+                        Console.WriteLine(
+                            "Transfer feature will be implemented next."
+                        );
+                        break;
+
+                    case "5":
+                        running = false;
+                        Console.WriteLine("\nThank you for banking with us!");
+                        break;
+
+                    default:
+                        Console.WriteLine(
+                            "Invalid option. Please try again."
+                        );
+                        break;
+                }
+            }
         }
     }
 }

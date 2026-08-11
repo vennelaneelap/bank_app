@@ -1,4 +1,9 @@
-﻿namespace BankApp
+﻿
+//user: neelapvennela_db_user
+//pass: z7h2p4SGT5VNVBR0
+// connection: mongodb+srv://neelapvennela_db_user:z7h2p4SGT5VNVBR0@cluster0.iq8d1ot.mongodb.net/
+
+namespace BankApp
 {
     public class Program
     {

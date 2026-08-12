@@ -54,7 +54,20 @@ namespace BankAppAPI.Repositories
 
             return result.DeletedCount > 0;
         }
+        public bool Deposit(int id, decimal amount)
+        {
+            UpdateDefinition<Customer> update =
+                Builders<Customer>.Update
+                    .Inc(customer => customer.Balance, amount);
 
+            UpdateResult result =
+                _customers.UpdateOne(
+                    customer => customer.Id == id,
+                    update
+                );
+
+            return result.MatchedCount > 0;
+        }
         public bool Update(int id, Customer updatedCustomer)
         {
             UpdateDefinition<Customer> update =

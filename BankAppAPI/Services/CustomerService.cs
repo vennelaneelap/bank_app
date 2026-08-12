@@ -12,7 +12,15 @@ namespace BankAppAPI.Services
         {
             _repository = repository;
         }
+        public bool Deposit(int id, decimal amount)
+        {
+            if (amount <= 0)
+            {
+                return false;
+            }
 
+            return _repository.Deposit(id, amount);
+        }
         public List<Customer> GetAllCustomers()
         {
             return _repository.GetAll();

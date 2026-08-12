@@ -50,6 +50,19 @@ namespace BankAppAPI.Controllers
             );
         }
 
+        [HttpPost("{id}/deposit")]
+        public IActionResult Deposit(int id, TransactionRequest request)
+        {
+            bool success = _service.Deposit(id, request.Amount);
+
+            if (!success)
+            {
+                return BadRequest("Deposit failed.");
+            }
+
+            return Ok("Deposit successful.");
+        }
+
         // PUT: api/customers/1
         [HttpPut("{id}")]
         public IActionResult Update(int id, Customer customer)

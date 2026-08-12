@@ -1,75 +1,75 @@
 using BankAppAPI.Models;
+using MongoDB.Driver;
 
 namespace BankAppAPI.Repositories
 {
     public class CustomerRepository
     {
-        private static readonly List<Customer> customers = new()
+        private readonly IMongoCollection<Customer> _customers;
+
+        public CustomerRepository(IConfiguration configuration)
         {
-            new Customer
-            {
-                Id = 1,
-                Name = "John Doe",
-                Email = "john@example.com"
-            },
+            string connectionString =
+                configuration["MongoDb:ConnectionString"]
+                ?? throw new Exception("MongoDB connection string not found.");
 
-            new Customer
-            {
-                Id = 2,
-                Name = "Jane Smith",
-                Email = "jane@example.com"
-            },
+            string databaseName =
+                configuration["MongoDb:DatabaseName"]
+                ?? throw new Exception("MongoDB database name not found.");
 
-            new Customer
-            {
-                Id = 3,
-                Name = "Bob Johnson",
-                Email = "bob@example.com"
-            }
-        };
+            MongoClient client = new MongoClient(connectionString);
+
+            IMongoDatabase database =
+                client.GetDatabase(databaseName);
+
+            _customers =
+                database.GetCollection<Customer>("customers");
+        }
 
         public List<Customer> GetAll()
         {
-            return customers;
+            return _customers
+                .Find(customer => true)
+                .ToList();
         }
 
         public Customer? GetById(int id)
         {
-            return customers.FirstOrDefault(customer => customer.Id == id);
+            return _customers
+                .Find(customer => customer.Id == id)
+                .FirstOrDefault();
         }
 
         public Customer Add(Customer customer)
         {
-            customer.Id = customers.Max(c => c.Id) + 1;
-
-            customers.Add(customer);
+            _customers.InsertOne(customer);
 
             return customer;
         }
 
-        public bool Update(int id, Customer updatedCustomer)
-        {
-            Customer? customer = GetById(id);
-
-            if (customer == null)
-                return false;
-
-            customer.Name = updatedCustomer.Name;
-            customer.Email = updatedCustomer.Email;
-
-            return true;
-        }
-
         public bool Delete(int id)
         {
-            Customer? customer = GetById(id);
+            DeleteResult result =
+                _customers.DeleteOne(customer => customer.Id == id);
 
-            if (customer == null)
-                return false;
+            return result.DeletedCount > 0;
+        }
 
-            customers.Remove(customer);
+        public bool Update(int id, Customer updatedCustomer)
+        {
+            UpdateDefinition<Customer> update =
+                Builders<Customer>.Update
+                    .Set(customer => customer.Name, updatedCustomer.Name)
+                    .Set(customer => customer.Email, updatedCustomer.Email)
+                    .Set(customer => customer.Balance, updatedCustomer.Balance);
 
-            return true;
+            UpdateResult result =
+                _customers.UpdateOne(
+                    customer => customer.Id == id,
+                    update
+                );
+
+            return result.MatchedCount > 0;
         }
     }
 }
